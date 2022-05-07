@@ -46,11 +46,15 @@
                     <li v-if="todoList.length > 0" v-for="(todo, index) in todoList" :key="index"
                         class="mb-2 border rounded py-2 d-flex justify-content-between align-items-center bg-light p-2">
                         <p class="mb-0 fs-6 fw-bold text-capitalize">
-                            {{ todo }}
+                            {{ todo.name }}
+                            <span v-if="!todo.status" class="badge bg-warning">Pendente</span>
+                            <span v-else class="badge bg-success">Realizado</span>
                         </p>
                         <div>
-                            <button class="btn btn-danger me-1" @click="removeItem(index)"><i class="fa fa-trash"></i> Apagar</button>
-                            <button class="btn btn-primary" @click='showEditModal(index)'><i class="fas fa-edit"></i> Editar</button>
+                            <button v-if="!todo.status" @click="changeStatus(1, index)" class="btn btn-success me-1"><i class="far fa-check-circle"></i> Marcar feito</button>
+                            <button v-else @click="changeStatus(0, index)" class="btn btn-warning me-1"><i class="far fa-circle"></i> Marcar refazer</button>
+                            <button class="btn btn-danger me-1" @click="removeItem(index)"><i class="fa fa-trash"></i></button>
+                            <button class="btn btn-primary" @click='showEditModal(index)'><i class="fas fa-edit"></i></button>
                         </div>
 
                     </li>
@@ -72,7 +76,7 @@
                 </div>
                 <div class="modal-body">
                     <span>Editar tarefa: </span>
-                    <input type="text" v-model="modalInp" class="form-control">
+                    <input type="text" v-model="modalInp" @keyup.enter="editarItem(modalIndex)" class="form-control">
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fa fa-times"></i> Cancelar</button>
@@ -102,33 +106,47 @@
         },
         methods: {
             addItem() {
-                this.todoList.push(this.inpItem);
-                localStorage.setItem('todoList', JSON.stringify(this.todoList));
+                if (this.inpItem.length < 5) {
+                    alert("Nome da tarefa muito curta. Utilize um nome maior.");
+                    return;
+                }
+                const newItem = {name: this.inpItem, status: 0};
+                this.todoList.push(newItem);
+                this.saveItem(this.todoList);
                 this.inpItem = '';
             },
-            removeItem(index) {
-                const check = confirm(`Remover: ${this.todoList[index]}?`);
-                if(check){
-                    this.todoList.splice(index, 1);
-                    localStorage.setItem('todoList', JSON.stringify(this.todoList));
+            removeItem(i) {
+                const check = confirm(`Remover: ${this.todoList[i]}?`);
+                if (check) {
+                    this.todoList.splice(i, 1);
+                    this.saveItem(this.todoList);
                 }
             },
-            showEditModal(index) {
-                this.modalDesc = this.modalInp = this.todoList[index];
-                this.modalIndex = index;
+            showEditModal(i) {
+                this.modalDesc = this.modalInp = this.todoList[i].name;
+                this.modalIndex = i;
                 edtModal.show();
             },
-            editarItem(index) {
-                this.todoList[index] = this.modalInp;
+            editarItem(i) {
+                if (this.modalInp.length < 5) {
+                    alert("Nome da tarefa muito curta. Utilize um nome maior.");
+                    return;
+                }
+                this.todoList[i].name = this.modalInp;
+                this.saveItem(this.todoList);
                 edtModal.hide();
             },
-            getTodo(){
-                this.todoList = JSON.parse(localStorage.getItem('todoList'));
+            changeStatus(v, i){
+                this.todoList[i].status = v;
+                this.saveItem(this.todoList);
+            },
+            saveItem(i) {
+                localStorage.setItem('todoList', JSON.stringify(i));
             }
         },
         created() {
-            this.todoList = JSON.parse(localStorage.getItem('todoList'));
-        }
+            this.todoList = JSON.parse(localStorage.getItem('todoList')) ?? [];
+        },
     }).mount('#app');
 
     const edtModal = new bootstrap.Modal(document.getElementById('modalEdit'));
