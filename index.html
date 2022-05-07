@@ -30,7 +30,7 @@
                     <div class="col-10">
                         <div class="form-group">
                             <label for="newTask">Descrição da nova tarefa:</label>
-                            <input type="text" class="form-control" v-model="inpItem" id="newTask">
+                            <input type="text" class="form-control" v-model="inpItem" @keyup.enter="addItem" id="newTask">
                         </div>
                     </div>
 
@@ -49,8 +49,8 @@
                             {{ todo }}
                         </p>
                         <div>
-                            <button class="btn btn-danger me-1" @click="removeItem(index)"><i class="fa fa-trash"></i> Apagar item</button>
-                            <button class="btn btn-primary" @click='showEditModal(index)'><i class="fas fa-edit"></i> Editar item</button>
+                            <button class="btn btn-danger me-1" @click="removeItem(index)"><i class="fa fa-trash"></i> Apagar</button>
+                            <button class="btn btn-primary" @click='showEditModal(index)'><i class="fas fa-edit"></i> Editar</button>
                         </div>
 
                     </li>
@@ -81,8 +81,6 @@
             </div>
         </div>
     </div>
-
-
 </div>
 
 <script src="https://kit.fontawesome.com/eb32f84b17.js" crossorigin="anonymous"></script>
@@ -95,11 +93,8 @@
     createApp({
         data() {
             return {
-                todoList: [
-                    'limpar casa',
-                    'limpar carro'
-                ],
-                modalDesc: 'olá',
+                todoList: [],
+                modalDesc: '',
                 modalInp: '',
                 modalIndex: '',
                 inpItem: '',
@@ -108,10 +103,15 @@
         methods: {
             addItem() {
                 this.todoList.push(this.inpItem);
+                localStorage.setItem('todoList', JSON.stringify(this.todoList));
                 this.inpItem = '';
             },
             removeItem(index) {
-                this.todoList.splice(index, 1);
+                const check = confirm(`Remover: ${this.todoList[index]}?`);
+                if(check){
+                    this.todoList.splice(index, 1);
+                    localStorage.setItem('todoList', JSON.stringify(this.todoList));
+                }
             },
             showEditModal(index) {
                 this.modalDesc = this.modalInp = this.todoList[index];
@@ -121,13 +121,17 @@
             editarItem(index) {
                 this.todoList[index] = this.modalInp;
                 edtModal.hide();
+            },
+            getTodo(){
+                this.todoList = JSON.parse(localStorage.getItem('todoList'));
             }
+        },
+        created() {
+            this.todoList = JSON.parse(localStorage.getItem('todoList'));
         }
     }).mount('#app');
 
     const edtModal = new bootstrap.Modal(document.getElementById('modalEdit'));
-
-
 </script>
 </body>
 </html>
