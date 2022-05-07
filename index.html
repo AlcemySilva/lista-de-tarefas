@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Lista de tarefas - Vue Js</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+</head>
+<body>
+<div id="app">
+    <div class="container-fluid">
+        <div class="container">
+
+            <div class="col-12 my-3 border-bottom border-1">
+                <div class="row">
+                    <div class="col-10">
+                        <h1>Lista de tarefas</h1>
+                    </div>
+                    <div class="col-2 d-flex justify-content-end align-items-center">
+                        <h5>{{ todoList.length }} Tarefas</h5>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border rounded p-3 bg-light mb-3">
+                <div class="row">
+                    <div class="col-10">
+                        <div class="form-group">
+                            <label for="newTask">Descrição da nova tarefa:</label>
+                            <input type="text" class="form-control" v-model="inpItem" id="newTask">
+                        </div>
+                    </div>
+
+                    <div class="col-2 mt-3">
+                        <button class="btn col-12 btn-primary mt-2" @click="addItem"><i class="fa fa-save"></i> Salvar</button>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="row">
+                <ul class="col-12">
+                    <li v-if="todoList.length > 0" v-for="(todo, index) in todoList" :key="index"
+                        class="mb-2 border rounded py-2 d-flex justify-content-between align-items-center bg-light p-2">
+                        <p class="mb-0 fs-6 fw-bold text-capitalize">
+                            {{ todo }}
+                        </p>
+                        <div>
+                            <button class="btn btn-danger me-1" @click="removeItem(index)"><i class="fa fa-trash"></i> Apagar item</button>
+                            <button class="btn btn-primary" @click='showEditModal(index)'><i class="fas fa-edit"></i> Editar item</button>
+                        </div>
+
+                    </li>
+                    <li v-else class="bg-success text-white mb-2 border border-success rounded py-2 d-flex justify-content-between align-items-center p-2">
+                        <p class="mb-0 fs-6 fw-bold text-capitalize">Sem tarefa registrada.</p>
+                    </li>
+                </ul>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="modal" tabindex="-1" id="modalEdit">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Editar tarefa: <span class=" text-capitalize text-primary fw-bold">{{ modalDesc }}</span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <span>Editar tarefa: </span>
+                    <input type="text" v-model="modalInp" class="form-control">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fa fa-times"></i> Cancelar</button>
+                    <button @click="editarItem(modalIndex)" type="button" class="btn btn-primary"><i class="fa fa-save"></i> Salvar alterações</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+<script src="https://kit.fontawesome.com/eb32f84b17.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+        crossorigin="anonymous"></script>
+<script src="https://unpkg.com/vue@3"></script>
+<script>
+    const {createApp} = Vue;
+
+    createApp({
+        data() {
+            return {
+                todoList: [
+                    'limpar casa',
+                    'limpar carro'
+                ],
+                modalDesc: 'olá',
+                modalInp: '',
+                modalIndex: '',
+                inpItem: '',
+            }
+        },
+        methods: {
+            addItem() {
+                this.todoList.push(this.inpItem);
+                this.inpItem = '';
+            },
+            removeItem(index) {
+                this.todoList.splice(index, 1);
+            },
+            showEditModal(index) {
+                this.modalDesc = this.modalInp = this.todoList[index];
+                this.modalIndex = index;
+                edtModal.show();
+            },
+            editarItem(index) {
+                this.todoList[index] = this.modalInp;
+                edtModal.hide();
+            }
+        }
+    }).mount('#app');
+
+    const edtModal = new bootstrap.Modal(document.getElementById('modalEdit'));
+
+
+</script>
+</body>
+</html>
